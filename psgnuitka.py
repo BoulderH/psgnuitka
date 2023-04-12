@@ -285,6 +285,9 @@ if __name__ == '__main__':
             else:
                 continue
         if event == "BUILD":
+            if build_cmd == "":
+                PySimpleGUI.PopupError(f"出错了，请先生成构建命令")
+                continue
             start_time = time.perf_counter()
             ret = subprocess.run(build_cmd, shell=True)
             stop_time = time.perf_counter()
