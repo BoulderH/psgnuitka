@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "psgnuitka"
+version = "0.1.0"
+description = "A graphical tool to facilitate the generation of Python executables using Nuitka"
+authors = ["boulderh <boulderh@163.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pysimplegui = "^4.60.4"
+
+
+[[tool.poetry.source]]
+name = "mirrors"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+default = true
+secondary = false
+
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
