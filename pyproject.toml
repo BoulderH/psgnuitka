@@ -4,10 +4,24 @@ version = "0.1.0"
 description = "A graphical tool to facilitate the generation of Python executables using Nuitka"
 authors = ["boulderh <boulderh@163.com>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/BoulderH/psgnuitka"
+repository = "https://github.com/BoulderH/psgnuitka"
+keywords = ["nuitka","PySimpleGUI","psgnuitka"]
+classifiers = [
+    "Development Status :: Early Preview v0.1.0",
+    "Programming Language :: python",
+    "Programming Language :: python :: 3 :: Only",
+    "Operating System :: POSIX",
+]
+include = [
+    "LICENSE",
+    "README.md"
+]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-pysimplegui = "^4.60.4"
+python = "^3.8"
+pysimplegui = "^4.60.0"
 
 
 [[tool.poetry.source]]
