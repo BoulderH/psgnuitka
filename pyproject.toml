@@ -27,7 +27,7 @@ secondary = false
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.2"
-nuitka = "^1.5.5"
+nuitka = "1.4.*"
 zstandard = "^0.20.0"
 
 [build-system]

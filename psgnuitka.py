@@ -3,7 +3,6 @@ import pathlib
 import subprocess
 import time
 import locale
-import shlex
 import os
 
 
@@ -11,20 +10,23 @@ def collectinfomation() -> dict:
     info = dict()
     sys_language = locale.getlocale()[0]
     language_code = locale.getpreferredencoding(do_setlocale=False)
+    if sys_language == "Chinese (Simplified)_China":
+        sys_language = "zh_CN"
     info['sys_language'] = sys_language
     info['language_code'] = language_code
     return info
 
 
 def runbuildcommand(command: str, window: PySimpleGUI.Window = None, timeout: int = None, system_encode: str = None) -> tuple:
-    if PySimpleGUI.running_windows():
-        # command = shlex.split(command)
-        p = subprocess.Popen(
-            command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    else:
-        command = shlex.split(command)
-        p = subprocess.Popen(
-            command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # if PySimpleGUI.running_windows():
+    #     # command = shlex.split(command)
+    #     p = subprocess.Popen(
+    #         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # else:
+    #     command = shlex.split(command)
+    #     p = subprocess.Popen(
+    #         command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = ''
     for line in p.stdout:
         # line = line.decode('cp936', errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
@@ -53,29 +55,8 @@ if __name__ == '__main__':
             "PY-PATH": "选择Python脚本文件",
         }
     }
-    start_layout = [
-        [
-            PySimpleGUI.Combo(values=["en_US", "zh_CN"],
-                              default_value="zh_CN", key="LANGUAGE")
-        ],
-        [
-            PySimpleGUI.Button("STARTAPP", key="STARTAPP")
-        ]
-    ]
-    text = {}
-    window = PySimpleGUI.Window(
-        title="", no_titlebar=True, layout=start_layout)
-    while True:
-        event, values = window.read()
-        if event in [PySimpleGUI.WINDOW_CLOSED, "EXIT"]:
-            break
-        if event == "STARTAPP":
-            if values["LANGUAGE"]:
-                text = all_text[values["LANGUAGE"]]
-            else:
-                text = all_text["zh_CN"]
-            break
-    window.close()
+    text=all_text[sys_info['sys_language']]
+
     # 主体布局
     main_layout = [
         [
