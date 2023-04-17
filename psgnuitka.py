@@ -55,7 +55,8 @@ if __name__ == '__main__':
             "PY-PATH": "选择Python脚本文件",
         }
     }
-    text=all_text[sys_info['sys_language']]
+    text=all_text.get(sys_info['sys_language'],"zh_CN")
+    # text=all_text[sys_info['sys_language']]
 
     # 主体布局
     main_layout = [
