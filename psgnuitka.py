@@ -2,8 +2,44 @@ import PySimpleGUI
 import pathlib
 import subprocess
 import time
+import locale
+import os
+
+
+def collectinfomation() -> dict:
+    info = dict()
+    sys_language = locale.getlocale()[0]
+    language_code = locale.getpreferredencoding(do_setlocale=False)
+    if sys_language == "Chinese (Simplified)_China":
+        sys_language = "zh_CN"
+    info['sys_language'] = sys_language
+    info['language_code'] = language_code
+    return info
+
+
+def runbuildcommand(command: str, window: PySimpleGUI.Window = None, timeout: int = None, system_encode: str = None) -> tuple:
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # if PySimpleGUI.running_windows():
+    #     # command = shlex.split(command)
+    #     p = subprocess.Popen(
+    #         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # else:
+    #     command = shlex.split(command)
+    #     p = subprocess.Popen(
+    #         command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = ''
+    for line in p.stdout:
+        # line = line.decode('cp936', errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
+        line = line.decode(system_encode)
+        output += line
+        print(line, end="", flush=True)
+        window.Refresh() if window else None  # yes, a 1-line if, so shoot me
+    retval = p.wait(timeout)
+    return retval, output  # also return the output just for fun
+
 
 if __name__ == '__main__':
+    sys_info = collectinfomation()
     PySimpleGUI.theme("DarkGrey6")
     all_text = {
         "en_US": {
@@ -19,29 +55,8 @@ if __name__ == '__main__':
             "PY-PATH": "选择Python脚本文件",
         }
     }
-    start_layout = [
-        [
-            PySimpleGUI.Combo(values=["en_US", "zh_CN"],
-                              default_value="zh_CN", key="LANGUAGE")
-        ],
-        [
-            PySimpleGUI.Button("STARTAPP", key="STARTAPP")
-        ]
-    ]
-    text = {}
-    window = PySimpleGUI.Window(
-        title="", no_titlebar=True, layout=start_layout)
-    while True:
-        event, values = window.read()
-        if event in [PySimpleGUI.WINDOW_CLOSED, "EXIT"]:
-            break
-        if event == "STARTAPP":
-            if values["LANGUAGE"]:
-                text = all_text[values["LANGUAGE"]]
-            else:
-                text = all_text["zh_CN"]
-            break
-    window.close()
+    text=all_text[sys_info['sys_language']]
+
     # 主体布局
     main_layout = [
         [
@@ -149,7 +164,7 @@ if __name__ == '__main__':
             ]),
         ],
         [
-            PySimpleGUI.Frame("需要的数据文件", layout=[
+            PySimpleGUI.Frame("需要的数据文件", expand_x=True, layout=[
                 [PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="DATA-TABLE",
                                    expand_x=True, justification="left")],
                 [PySimpleGUI.Button("添加文件", key="ADD-DATA-FILE"),
@@ -157,7 +172,7 @@ if __name__ == '__main__':
                  PySimpleGUI.Button("添加指定模块的所有数据文件", key="ADD-DATA-PACKAGE"),
                  PySimpleGUI.Button("删除选中", key="DEL-DATA-TABLE")]
             ]),
-            PySimpleGUI.Frame("需要的模块", layout=[
+            PySimpleGUI.Frame("需要的模块", expand_x=True, layout=[
                 [PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="MODULE-TABLE",
                                    expand_x=True, justification="left")],
                 [PySimpleGUI.Button("指定需要导入的模块", key="ADD-MODULE-NAME"),
@@ -170,7 +185,16 @@ if __name__ == '__main__':
             PySimpleGUI.Text("构建命令:")
         ],
         [
-            PySimpleGUI.Multiline(key="BUILD-CMD", size=(160, 4), )
+            PySimpleGUI.Multiline(
+                key="BUILD-CMD", size=(160, 4), expand_x=True, expand_y=True)
+        ],
+        [
+            PySimpleGUI.Text("显示输出:"),
+
+        ],
+        [
+            PySimpleGUI.Output(key="BUILD-OUTPUT",
+                               size=(160, 8), expand_x=True, expand_y=True)
         ],
         [
             PySimpleGUI.Button(button_text="生成构建命令", key="GENERATE-CMD"),
@@ -178,14 +202,17 @@ if __name__ == '__main__':
             PySimpleGUI.Button(button_text="退出", key="EXIT")
         ]
     ]
-    window = PySimpleGUI.Window(title="psgnuitka", layout=main_layout, font="_ 12", resizable=True,
-                                auto_size_text=True, auto_size_buttons=True)
+    window = PySimpleGUI.Window(title="psgnuitka", layout=main_layout, font="_ 14", resizable=True,
+                                auto_size_text=True, auto_size_buttons=True, scaling=1.0,)
 
     data_table = []
     module_table = []
     build_cmd = ""
+    start_time = 0
+    stop_time = 0
+    i = 0
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=10)
         if event in [PySimpleGUI.WINDOW_CLOSED, "EXIT"]:
             break
         if event == "GENERATE-CMD":
@@ -223,34 +250,36 @@ if __name__ == '__main__':
             if values["OUTPUT-DIR"]:
                 cmd.append("--output-dir=" +
                            str(pathlib.Path(values["OUTPUT-DIR"]).absolute()))
-            cmd.append("--remove-output")
-            cmd.append("--show-progress")
+            # cmd.append("--remove-output")
+            # cmd.append("--verbose")
             cmd.append(str(pathlib.Path(values['PY-PATH']).absolute()))
             build_cmd = " ".join(cmd)
             window['BUILD-CMD'].update(build_cmd)
+            # print(os.environ.get("PYTHONHOME"), os.environ.get("PYTHONPATH"))
             # PySimpleGUI.popup_get_file(message="选择要添加的文件", no_window=True)
         if event == "ADD-DATA-FILE":
-            file_path = PySimpleGUI.popup_get_file(message="", no_window=True)
+            file_path = PySimpleGUI.popup_get_file(message="", no_window=True,keep_on_top=True)
             if file_path:
                 file_name = PySimpleGUI.popup_get_text(
-                    message="添加的文件名为", default_text=file_path.split("/")[-1])
+                    message="添加的文件名为", default_text=file_path.split("/")[-1], font="_ 14",keep_on_top=True)
                 data_table.append(
                     ["--include-data-files=" + str(pathlib.Path(file_path).absolute()) + "=" + file_name])
                 window["DATA-TABLE"].update(values=data_table)
             else:
                 continue
         if event == "ADD-DATA-DIR":
-            dir_path = PySimpleGUI.popup_get_folder(message="", no_window=True)
+            dir_path = PySimpleGUI.popup_get_folder(message="", no_window=True,keep_on_top=True)
             if dir_path:
                 dir_name = PySimpleGUI.popup_get_text(message="添加的目录名为",
-                                                      default_text=dir_path.split("/")[-1])
+                                                      default_text=dir_path.split("/")[-1], font="_ 14",keep_on_top=True)
                 data_table.append(
                     ["--include-data-dir=" + str(pathlib.Path(dir_path).absolute()) + "=" + dir_name])
                 window["DATA-TABLE"].update(values=data_table)
             else:
                 continue
         if event == "ADD-DATA-PACKAGE":
-            package_name = PySimpleGUI.popup_get_text(message="添加指定模块数据", )
+            package_name = PySimpleGUI.popup_get_text(
+                message="添加指定模块数据", font="_ 14",keep_on_top=True)
             if package_name:
                 data_table.append(["--include-package-data=" + package_name])
                 window["DATA-TABLE"].update(values=data_table)
@@ -264,14 +293,16 @@ if __name__ == '__main__':
             else:
                 continue
         if event == "ADD-MODULE-NAME":
-            module_name = PySimpleGUI.popup_get_text(message="希望导入的模块", )
+            module_name = PySimpleGUI.popup_get_text(
+                message="希望导入的模块", font="_ 14",keep_on_top=True)
             if module_name:
                 module_table.append(["--follow-import-to=" + module_name])
                 window["MODULE-TABLE"].update(values=module_table)
             else:
                 continue
         if event == "NO-MODULE-NAME":
-            module_name = PySimpleGUI.popup_get_text(message="不希望导入的模块", )
+            module_name = PySimpleGUI.popup_get_text(
+                message="不希望导入的模块", font="_ 14",keep_on_top=True)
             if module_name:
                 module_table.append(["--nofollow-import-to=" + module_name])
                 window["MODULE-TABLE"].update(values=module_table)
@@ -286,14 +317,31 @@ if __name__ == '__main__':
                 continue
         if event == "BUILD":
             if build_cmd == "":
-                PySimpleGUI.PopupError(f"出错了，请先生成构建命令")
+                PySimpleGUI.PopupError(f"出错了，请先生成构建命令", font="_ 14",keep_on_top=True)
                 continue
+            if PySimpleGUI.running_windows():
+                os.environ["PYTHONPATH"] = str(pathlib.Path(
+                    values['PYTHON-PATH']).absolute().parent)
+                os.environ["PYTHONHOME"] = str(pathlib.Path(
+                    values['PYTHON-PATH']).absolute().parent)
             start_time = time.perf_counter()
-            ret = subprocess.run(build_cmd, shell=True)
+            window['BUILD'].update(disabled=True)
+            window["BUILD-OUTPUT"].update("")
+            # ret = subprocess.run(build_cmd, shell=True)
+            # print(build_cmd)
+            window.perform_long_operation(lambda: runbuildcommand(
+                command=build_cmd, window=window, system_encode=sys_info['language_code']), "BUILD-DONE")
+            # stop_time = time.perf_counter()
+            # use_time = round(stop_time - start_time, 2)
+        if event == "BUILD-DONE":
             stop_time = time.perf_counter()
             use_time = round(stop_time - start_time, 2)
-            if ret.returncode == 0:
-                PySimpleGUI.PopupOK(f"处理完毕，用时{use_time}s")
+            # PySimpleGUI.PopupOK(f"处理完毕，用时{use_time}s", font="_ 14")
+            window['BUILD'].update(disabled=False)
+            # print(values["BUILD-DONE"])
+            if values["BUILD-DONE"][0] == 0:
+                PySimpleGUI.popup_ok(f"处理完毕，用时{use_time}s", font="_ 14",keep_on_top=True)
             else:
-                PySimpleGUI.PopupError(f"出错了，请对照终端检查信息，用时{use_time}s")
+                PySimpleGUI.popup_error(
+                    f"出错了，请对照输出检查信息，用时{use_time}s", font="_ 14",keep_on_top=True)
     window.close()

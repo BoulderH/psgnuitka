@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psgnuitka"
-version = "0.1.0"
+version = "0.2.0"
 description = "A graphical tool to facilitate the generation of Python executables using Nuitka"
 authors = ["boulderh <boulderh@163.com>"]
 readme = "README.md"
@@ -27,7 +27,7 @@ secondary = false
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.2"
-nuitka = "^1.5.5"
+nuitka = "1.4.*"
 zstandard = "^0.20.0"
 
 [build-system]
