@@ -18,7 +18,8 @@ def collectinfomation() -> dict:
 
 
 def runbuildcommand(command: str, window: PySimpleGUI.Window = None, timeout: int = None, system_encode: str = None) -> tuple:
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(command, shell=True,
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # if PySimpleGUI.running_windows():
     #     # command = shlex.split(command)
     #     p = subprocess.Popen(
@@ -55,7 +56,7 @@ if __name__ == '__main__':
             "PY-PATH": "选择Python脚本文件",
         }
     }
-    text=all_text.get(sys_info['sys_language'],"zh_CN")
+    text = all_text.get(sys_info['sys_language'], "zh_CN")
     # text=all_text[sys_info['sys_language']]
 
     # 主体布局
@@ -203,7 +204,7 @@ if __name__ == '__main__':
             PySimpleGUI.Button(button_text="退出", key="EXIT")
         ]
     ]
-    window = PySimpleGUI.Window(title="psgnuitka", layout=main_layout, font="_ 14", resizable=True,
+    window = PySimpleGUI.Window(title="psgnuitka", layout=main_layout, font=("", 14), resizable=True,
                                 auto_size_text=True, auto_size_buttons=True, scaling=1.0,)
 
     data_table = []
@@ -213,7 +214,7 @@ if __name__ == '__main__':
     stop_time = 0
     i = 0
     while True:
-        event, values = window.read(timeout=10)
+        event, values = window.read(timeout=10, timeout_key="--TIMEOUT--")
         if event in [PySimpleGUI.WINDOW_CLOSED, "EXIT"]:
             break
         if event == "GENERATE-CMD":
@@ -259,20 +260,22 @@ if __name__ == '__main__':
             # print(os.environ.get("PYTHONHOME"), os.environ.get("PYTHONPATH"))
             # PySimpleGUI.popup_get_file(message="选择要添加的文件", no_window=True)
         if event == "ADD-DATA-FILE":
-            file_path = PySimpleGUI.popup_get_file(message="", no_window=True,keep_on_top=True)
+            file_path = PySimpleGUI.popup_get_file(
+                message="", no_window=True, keep_on_top=True)
             if file_path:
                 file_name = PySimpleGUI.popup_get_text(
-                    message="添加的文件名为", default_text=file_path.split("/")[-1], font="_ 14",keep_on_top=True)
+                    message="添加的文件名为", default_text=file_path.split("/")[-1], font="_ 14", keep_on_top=True)
                 data_table.append(
                     ["--include-data-files=" + str(pathlib.Path(file_path).absolute()) + "=" + file_name])
                 window["DATA-TABLE"].update(values=data_table)
             else:
                 continue
         if event == "ADD-DATA-DIR":
-            dir_path = PySimpleGUI.popup_get_folder(message="", no_window=True,keep_on_top=True)
+            dir_path = PySimpleGUI.popup_get_folder(
+                message="", no_window=True, keep_on_top=True)
             if dir_path:
                 dir_name = PySimpleGUI.popup_get_text(message="添加的目录名为",
-                                                      default_text=dir_path.split("/")[-1], font="_ 14",keep_on_top=True)
+                                                      default_text=dir_path.split("/")[-1], font="_ 14", keep_on_top=True)
                 data_table.append(
                     ["--include-data-dir=" + str(pathlib.Path(dir_path).absolute()) + "=" + dir_name])
                 window["DATA-TABLE"].update(values=data_table)
@@ -280,7 +283,7 @@ if __name__ == '__main__':
                 continue
         if event == "ADD-DATA-PACKAGE":
             package_name = PySimpleGUI.popup_get_text(
-                message="添加指定模块数据", font="_ 14",keep_on_top=True)
+                message="添加指定模块数据", font="_ 14", keep_on_top=True)
             if package_name:
                 data_table.append(["--include-package-data=" + package_name])
                 window["DATA-TABLE"].update(values=data_table)
@@ -295,7 +298,7 @@ if __name__ == '__main__':
                 continue
         if event == "ADD-MODULE-NAME":
             module_name = PySimpleGUI.popup_get_text(
-                message="希望导入的模块", font="_ 14",keep_on_top=True)
+                message="希望导入的模块", font="_ 14", keep_on_top=True)
             if module_name:
                 module_table.append(["--follow-import-to=" + module_name])
                 window["MODULE-TABLE"].update(values=module_table)
@@ -303,7 +306,7 @@ if __name__ == '__main__':
                 continue
         if event == "NO-MODULE-NAME":
             module_name = PySimpleGUI.popup_get_text(
-                message="不希望导入的模块", font="_ 14",keep_on_top=True)
+                message="不希望导入的模块", font="_ 14", keep_on_top=True)
             if module_name:
                 module_table.append(["--nofollow-import-to=" + module_name])
                 window["MODULE-TABLE"].update(values=module_table)
@@ -318,7 +321,8 @@ if __name__ == '__main__':
                 continue
         if event == "BUILD":
             if build_cmd == "":
-                PySimpleGUI.PopupError(f"出错了，请先生成构建命令", font="_ 14",keep_on_top=True)
+                PySimpleGUI.PopupError(
+                    f"出错了，请先生成构建命令", font="_ 14", keep_on_top=True)
                 continue
             if PySimpleGUI.running_windows():
                 os.environ["PYTHONPATH"] = str(pathlib.Path(
@@ -341,8 +345,9 @@ if __name__ == '__main__':
             window['BUILD'].update(disabled=False)
             # print(values["BUILD-DONE"])
             if values["BUILD-DONE"][0] == 0:
-                PySimpleGUI.popup_ok(f"处理完毕，用时{use_time}s", font="_ 14",keep_on_top=True)
+                PySimpleGUI.popup_ok(
+                    f"处理完毕，用时{use_time}s", font="_ 14", keep_on_top=True)
             else:
                 PySimpleGUI.popup_error(
-                    f"出错了，请对照输出检查信息，用时{use_time}s", font="_ 14",keep_on_top=True)
+                    f"出错了，请对照输出检查信息，用时{use_time}s", font="_ 14", keep_on_top=True)
     window.close()
