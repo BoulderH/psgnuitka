@@ -63,7 +63,7 @@ if __name__ == '__main__':
     main_layout = [
         [
             PySimpleGUI.Text(text["PYTHON-PATH"]
-                             ), PySimpleGUI.Input(key="PYTHON-PATH"),
+                             ), PySimpleGUI.Input(key=text["PYTHON-PATH"]),
             PySimpleGUI.FileBrowse(button_text=text['FileBrowse-Button'], file_types=[("", "python.exe python")],
                                    target="PYTHON-PATH"), PySimpleGUI.Text(text["PY-PATH"]),
             PySimpleGUI.Input(key="PY-PATH"),
