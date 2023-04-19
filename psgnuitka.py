@@ -56,55 +56,62 @@ if __name__ == '__main__':
             "PY-PATH": "选择Python脚本文件",
         }
     }
+    sys_info
     text = all_text.get(sys_info['sys_language'], "zh_CN")
     # text=all_text[sys_info['sys_language']]
 
     # 主体布局
     main_layout = [
         [
-            PySimpleGUI.Text(text["PYTHON-PATH"]
-                             ), PySimpleGUI.Input(key="PYTHON-PATH"),
-            PySimpleGUI.FileBrowse(button_text=text['FileBrowse-Button'], file_types=[("", "python.exe python")],
-                                   target="PYTHON-PATH"), PySimpleGUI.Text(text["PY-PATH"]),
+            PySimpleGUI.Text("使用的Python解释器位置"),
+            PySimpleGUI.Input(key="PYTHON-PATH"),
+            PySimpleGUI.FileBrowse(button_text="选择文件", file_types=[
+                                   ("", "python.exe python")], target="PYTHON-PATH"),
+            PySimpleGUI.Text("选择Python脚本文件"),
             PySimpleGUI.Input(key="PY-PATH"),
-            PySimpleGUI.FileBrowse(button_text=text['FileBrowse-Button'], file_types=[("", "*.py")], target="PY-PATH")],
+            PySimpleGUI.FileBrowse(button_text="选择文件", file_types=[("", "*.py")], target="PY-PATH")],
         [
         ],
         [
             PySimpleGUI.Text("构建生成目录"),
             PySimpleGUI.Input(key="OUTPUT-DIR"),
-            PySimpleGUI.FolderBrowse(button_text=text['FolderBrowse-Button'],
-                                     target="OUTPUT-DIR"),
+            PySimpleGUI.FolderBrowse(button_text="选择目录", target="OUTPUT-DIR"),
             PySimpleGUI.Text("可执行文件名"),
             PySimpleGUI.Input(key="OUTPUT-FILENAME"),
         ],
         [
-            PySimpleGUI.Frame("C编译器选择", layout=[[
-                PySimpleGUI.Radio(group_id="CCOMPILER",
-                                  text="MingW64", default=True, key="MINGW64"),
-                PySimpleGUI.Radio(group_id="CCOMPILER",
-                                  text="Clang", default=False, key="CLANG"),
-                PySimpleGUI.Radio(group_id="CCOMPILER",
-                                  text="MSVC", default=False, key="MSVC"),
-            ]]),
+            PySimpleGUI.Frame("C编译器选择", layout=[
+                [
+                    PySimpleGUI.Radio(group_id="CCOMPILER",
+                                      text="MingW64", default=True, key="MINGW64"),
+                    PySimpleGUI.Radio(group_id="CCOMPILER",
+                                      text="Clang", default=False, key="CLANG"),
+                    PySimpleGUI.Radio(group_id="CCOMPILER",
+                                      text="MSVC", default=False, key="MSVC"),
+                ]
+            ]),
             PySimpleGUI.Frame("单文件模式", layout=[[
                 PySimpleGUI.Checkbox(
                     text="onefile", default=False, key="ONEFILE")
             ]]),
-            PySimpleGUI.Frame("是否控制台可用", layout=[[
-                PySimpleGUI.Radio(group_id="CONSOLE", text="enable",
-                                  default=True, key="ENABLE-CONSOLE"),
-                PySimpleGUI.Radio(group_id="CONSOLE", text="disable",
-                                  default=False, key="DISABLE-CONSOLE"),
-            ]]),
-            PySimpleGUI.Frame("工具链来源选择", layout=[[
-                PySimpleGUI.Radio(group_id="TOOLCHAINFROM", text="使用系统环境路径", default=False,
-                                  key="SYSTEMTOOLCHAIN"),
-                PySimpleGUI.Radio(group_id="TOOLCHAINFROM", text="使用本工具自带版本", default=False,
-                                  key="LOCALTOOLCHAIN", disabled=True),
-                PySimpleGUI.Radio(group_id="TOOLCHAINFROM", text="由nuitka自动下载处理", default=True,
-                                  key="NUITKATOOLCHAIN"),
-            ]]),
+            PySimpleGUI.Frame("是否控制台可用", layout=[
+                [
+                    PySimpleGUI.Radio(
+                        group_id="CONSOLE", text="enable", default=True, key="ENABLE-CONSOLE"),
+                    PySimpleGUI.Radio(
+                        group_id="CONSOLE", text="disable", default=False, key="DISABLE-CONSOLE"),
+                ]
+            ]),
+            PySimpleGUI.Frame("工具链来源选择", layout=[
+                [
+                    PySimpleGUI.Radio(
+                        group_id="TOOLCHAINFROM", text="使用系统环境路径", default=False, key="SYSTEMTOOLCHAIN"),
+                    PySimpleGUI.Radio(group_id="TOOLCHAINFROM", text="使用本工具自带版本",
+                                      default=False, key="LOCALTOOLCHAIN", disabled=True),
+                    PySimpleGUI.Radio(
+                        group_id="TOOLCHAINFROM", text="由nuitka自动下载处理", default=True, key="NUITKATOOLCHAIN"),
+                ]
+            ]),
         ],
         [
             PySimpleGUI.Frame("额外插件", layout=[
@@ -167,19 +174,24 @@ if __name__ == '__main__':
         ],
         [
             PySimpleGUI.Frame("需要的数据文件", expand_x=True, layout=[
-                [PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="DATA-TABLE",
-                                   expand_x=True, justification="left")],
-                [PySimpleGUI.Button("添加文件", key="ADD-DATA-FILE"),
-                 PySimpleGUI.Button("添加目录", key="ADD-DATA-DIR"),
-                 PySimpleGUI.Button("添加指定模块的所有数据文件", key="ADD-DATA-PACKAGE"),
-                 PySimpleGUI.Button("删除选中", key="DEL-DATA-TABLE")]
+                [
+                    PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="DATA-TABLE",
+                                      expand_x=True, justification="left")],
+                [
+                    PySimpleGUI.Button("添加文件", key="ADD-DATA-FILE"),
+                    PySimpleGUI.Button("添加目录", key="ADD-DATA-DIR"),
+                    PySimpleGUI.Button(
+                        "添加指定模块的所有数据文件", key="ADD-DATA-PACKAGE"),
+                    PySimpleGUI.Button("删除选中", key="DEL-DATA-TABLE")]
             ]),
             PySimpleGUI.Frame("需要的模块", expand_x=True, layout=[
-                [PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="MODULE-TABLE",
-                                   expand_x=True, justification="left")],
-                [PySimpleGUI.Button("指定需要导入的模块", key="ADD-MODULE-NAME"),
-                 PySimpleGUI.Button("指定不希望导入的模块", key="NO-MODULE-NAME"),
-                 PySimpleGUI.Button("删除选中", key="DEL-MODULE-TABLE")]
+                [
+                    PySimpleGUI.Table(values=[[]], headings=["添加列表"], key="MODULE-TABLE",
+                                      expand_x=True, justification="left")],
+                [
+                    PySimpleGUI.Button("指定需要导入的模块", key="ADD-MODULE-NAME"),
+                    PySimpleGUI.Button("指定不希望导入的模块", key="NO-MODULE-NAME"),
+                    PySimpleGUI.Button("删除选中", key="DEL-MODULE-TABLE")]
             ])
         ],
 
